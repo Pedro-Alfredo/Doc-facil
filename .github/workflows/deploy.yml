@@ -9,11 +9,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout do código
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm' # Resolve o aviso de "No build cache found"
 
-      - run: npm install
-      - run: npm run build
+      - name: Instalar dependências e tipos
+        run: |
+          npm install
+          npm install --save-dev typescript @types/react @types/node
+          
+      - name: Build do projeto
+        run: npm run build
