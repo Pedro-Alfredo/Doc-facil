@@ -3,29 +3,45 @@ name: Deploy Site
 on:
   push:
     branches: [main]
+  workflow_dispatch: # Permite rodar manualmente se precisar
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-      # As linhas abaixo ignoram erros de TypeScript e Lint durante o build
-      NEXT_PUBLIC_IGNORE_TS_ERRORS: true
-      NEXT_TELEMETRY_DISABLED: 1
-
     steps:
-      - name: Checkout do código
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
 
-      - name: Instalar dependências
+      - name: Install and Build
         run: |
           npm install
           npm install --save-dev typescript @types/react @types/node @types/react-dom
+          npx next build
 
-      - name: Build do projeto (Modo Permissivo)
-        run: npx next build --no-lint
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out # O Next.js gera a exportação estática aqui
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
