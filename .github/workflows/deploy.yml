@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # Resolve o aviso de depreciação do Node 20
 
     steps:
       - name: Checkout do código
@@ -15,8 +17,8 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm' # Resolve o aviso de "No build cache found"
+          node-version: 24 # Atualizado para a versão recomendada em 2026
+          # Removi a linha do cache temporariamente para o erro sumir
 
       - name: Instalar dependências e tipos
         run: |
